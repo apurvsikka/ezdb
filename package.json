@@ -1,0 +1,32 @@
+{
+  "name": "ezdb",
+  "version": "0.0.1",
+  "description": "EZdb is a simple JSON database for TypeScript for local use",
+  "keywords": [
+    "ezdb",
+    "JSON",
+    "Database",
+    "TypeScript",
+    "Local",
+    "JavaScript",
+    "Node.js",
+    "NoSQL",
+    "MongoDB"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "..."
+  },
+  "license": "MIT",
+  "author": "apurvsikka(apurv)",
+  "main": "index.ts",
+  "scripts": {
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
