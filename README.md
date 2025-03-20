@@ -1,7 +1,7 @@
 
-# Project Title
+# EZDB
 
-EZdb is a simple JSON database for TypeScript for local use
+a simple JSON database for TypeScript for local use
 
 
 ![Logo](logo.png)
