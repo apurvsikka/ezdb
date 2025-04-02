@@ -1,5 +1,5 @@
 {
-  "name": "ezdb",
+  "name": "ezdb-main",
   "version": "0.0.2",
   "description": "EZdb is a simple JSON database for TypeScript for local use",
   "keywords": [
@@ -28,5 +28,9 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "ezdb": "file:",
+    "ezdb-main": "file:"
   }
 }
