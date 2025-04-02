@@ -1,6 +1,6 @@
 {
   "name": "ezdb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "EZdb is a simple JSON database for TypeScript for local use",
   "keywords": [
     "ezdb",
