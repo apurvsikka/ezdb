@@ -1,69 +1,68 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { rm } from "fs/promises";
-import JSONDatabase from "../index";
+import { describe, it, expect, beforeEach } from "bun:test";
+import EzDB from "ezdb-main";
 
-const TEST_DB_FILE = "./test_db.json";
-
-describe("JSONDatabase", () => {
-  let db: JSONDatabase;
+describe("EzDB", () => {
+  let db: EzDB;
 
   beforeEach(async () => {
-    db = new JSONDatabase(TEST_DB_FILE);
+    db = new EzDB("testdb");
+    await db.clear(); // Ensure a clean slate before each test
   });
 
-  afterEach(async () => {
-    await rm(TEST_DB_FILE, { force: true });
+  it("should insert and retrieve a record", async () => {
+    const id = await db.insert({ name: "Alice", age: 25 });
+    const record = await db.findById(id);
+    expect(record).toBeTruthy();
+    expect(record?.name).toBe("Alice");
+    expect(record?.age).toBe(25);
   });
 
-  it("should create a collection", async () => {
-    await db.createCollection("users");
-    const collection = await db.getCollection("users");
-    expect(collection).toEqual([]);
+  it("should update a record", async () => {
+    const id = await db.insert({ name: "Bob", age: 30 });
+    await db.update(id, { age: 31 });
+    const updated = await db.findById(id);
+    expect(updated?.age).toBe(31);
   });
 
-  it("should add an item to a collection", async () => {
-    await db.createCollection("users");
-    await db.addItem("users", { name: "Alice" });
-    const users = await db.getCollection("users");
-    expect(users.length).toBe(1);
-    expect(users[0].name).toBe("Alice");
-    expect(users[0].id).toBe(1);
+  it("should delete a record", async () => {
+    const id = await db.insert({ name: "Charlie", age: 40 });
+    await db.delete(id);
+    const deleted = await db.findById(id);
+    expect(deleted).toBeNull();
   });
 
-  it("should delete an item from a collection", async () => {
-    await db.createCollection("users");
-    await db.addItem("users", { name: "Alice" });
-    await db.addItem("users", { name: "Bob" });
-    await db.deleteItem("users", 1);
-    const users = await db.getCollection("users");
-    expect(users.length).toBe(1);
-    expect(users[0].name).toBe("Bob");
+  it("should find records by query", async () => {
+    await db.insert({ name: "Eve", age: 28 });
+    await db.insert({ name: "Eve", age: 35 });
+    const results = await db.find({ name: "Eve" });
+    expect(results.length).toBe(2);
   });
 
-  it("should update an item in a collection", async () => {
-    await db.createCollection("users");
-    await db.addItem("users", { name: "Alice" });
-    await db.updateItem("users", 1, { name: "Alice Updated" });
-    const users = await db.getCollection("users");
-    expect(users[0].name).toBe("Alice Updated");
+  it("should support transactions", async () => {
+    await db.transaction(async (txn) => {
+      const id = await txn.insert({ name: "Dave", age: 45 });
+      const record = await txn.findById(id);
+      expect(record).toBeTruthy();
+      expect(record?.name).toBe("Dave");
+    });
   });
 
-  it("should delete a collection", async () => {
-    await db.createCollection("users");
-    await db.deleteCollection("users");
-    const users = await db.getCollection("users");
-    expect(users).toEqual([]);
+  it("should rollback transaction on failure", async () => {
+    try {
+      await db.transaction(async (txn) => {
+        await txn.insert({ name: "FailCase", age: 50 });
+        throw new Error("Test error");
+      });
+    } catch {}
+
+    const records = await db.find({ name: "FailCase" });
+    expect(records.length).toBe(0);
   });
 
-  it("should search items in a collection", async () => {
-    await db.createCollection("users");
-    await db.addItem("users", { name: "Alice" });
-    await db.addItem("users", { name: "Bob" });
-    const result = await db.searchItems(
-      "users",
-      (user) => user.name === "Alice",
-    );
-    expect(result.length).toBe(1);
-    expect(result[0].name).toBe("Alice");
+  it("should clear all records", async () => {
+    await db.insert({ name: "John", age: 22 });
+    await db.clear();
+    const allRecords = await db.getAll();
+    expect(allRecords.length).toBe(0);
   });
 });
